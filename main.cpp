@@ -6,7 +6,7 @@
 #include <iostream>
 #include <unistd.h>
 #include "func.hpp"
-
+#include <string>
 
 int main(void)
 {
@@ -19,7 +19,8 @@ int main(void)
 
 		//read a line of input from the user
 		getline(std::cin, cmd); // at this point, I need to 'tokenize' cmd;
-		//tokenize(cmd);
+		std::vector<std::string> tokenCmd;
+		tokenCmd = tokenize(cmd);
 	
 		// we might decide if the input is a builtin command
 		// Ill later come back to do a switch statement chain.
@@ -39,18 +40,26 @@ int main(void)
 			}
 			else
 			{
-				// child, executes the user's input as a command
-				char** args = new char*[2];
-				args[0] = (char*) cmd.c_str();
-				args[1] = (char*)NULL;
-
+				int numArgs = tokenCmd.size();
+				char** args = new char*[numArgs];
+				for(int i = 0; i < numArgs; i++)
+				{
+					args[i] = (char*) tokenCmd[i].c_str();	
+					std::cout << tokenCmd[i];
+				}
+				//child, executes the user's input as a command
+				//char** args = new char*[2];
+				//args[0] = (char*) cmd.c_str();
+				//args[1] = (char*)NULL;
+				
 				execvp(args[0], args);
 				//note if the command is successfully found the child will never
 				//execute the following error message
-				// command not found, or similar errors
+				//command not found, or similar errors
 				std::cerr << args[0] << " did something wrong" << std::endl;
 				exit(1);
 			}
+
 		}	
 	}
 	return 0;
