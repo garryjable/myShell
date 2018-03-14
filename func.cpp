@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 #include "func.hpp"
 
@@ -28,4 +29,24 @@ std::vector<std::string> tokenize(std::string cmd)
 	}
 
 	return tokenCmd;
+}
+void printHistory(std::vector<std::string> history)
+{
+			for(int i = 0; i < history.size(); i++)
+			{
+				std::cout << history[i] << std::endl;	
+			}
+}		
+void printHistory(std::vector<std::string> history, std::vector<std::string> tokenCmd)
+{
+	if (tokenCmd.size() > 1)
+			{
+				int i = stoi(tokenCmd[1]);
+				i--;
+				std::cout << history[i] << std::endl;
+			}
+			else
+			{
+				std::cout << "Please specify history index like so '^ int' " << std::endl;	
+			}
 }

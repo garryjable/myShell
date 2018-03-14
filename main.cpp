@@ -34,11 +34,11 @@ int main(void)
 		}
 		else if(tokenCmd[0] == "history")
 		{
-
+			printHistory(history);
 		}
 		else if(tokenCmd[0] == "^")
 		{
-
+			printHistory(history, tokenCmd);
 		}
 		else if (tokenCmd[0] == "exit")
 		{
@@ -72,9 +72,13 @@ int main(void)
 				//note if the command is successfully found the child will never
 				//execute the following error message
 				//command not found, or similar errors
-				std::cerr << args[0] << " did something wrong" << std::endl;
-				exit(1);
-			}
+//				for(int i = 0; i < numArgs; i++)
+//				{
+//					delete	args[i];	
+//				}
+					std::cerr << args[0] << " did something wrong" << std::endl;
+					exit(1);
+				}
 
 		}	
 	}
