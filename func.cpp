@@ -1,6 +1,11 @@
 #include <iostream>
 #include <string>
 #include "func.hpp"
+#include <chrono>
+#include <ctime>
+#include <sys/wait.h>
+#include <iostream>
+#include <unistd.h>
 
 
 std::vector<std::string> tokenize(std::string cmd)
@@ -50,3 +55,37 @@ void printHistory(std::vector<std::string> history, std::vector<std::string> tok
 				std::cout << "Please specify history index like so '^ int' " << std::endl;	
 			}
 }
+std::chrono::duration<double> forkExec(std::vector<std::string> tokenCmd, std::chrono::duration<double> ptime)
+{
+			int numArgs = tokenCmd.size();
+			char** args = new char*[numArgs];
+			for(int i = 0; i < numArgs; i++)
+			{
+				args[i] = (char*) tokenCmd[i].c_str();	
+			}
+			auto start = std::chrono::system_clock::now();	
+			if(fork())
+			{
+				// parent waits for the child to finish
+				int status;
+				wait(&status);
+				auto end = std::chrono::system_clock::now();
+				std::chrono::duration<double> elapsed_seconds = end - start;
+				ptime += elapsed_seconds;
+			}
+			else
+			{
+				//child, executes the user's input as a command
+				execvp(args[0], args);
+				//note if the command is successfully found the child will never
+				//execute the following error message
+				//command not found, or similar errors
+				std::cerr << args[0] << " did something wrong" << std::endl;
+				exit(1);
+			}
+
+			delete[] args;
+
+			return ptime;
+}
+

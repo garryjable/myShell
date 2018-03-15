@@ -30,9 +30,6 @@ int main(void)
 			// loads the tokenized vector into an char ** array
 			// likely not the most efficient but whatevs
 			// we might decide if the input is a builtin command
-
-	
-			
 		if(tokenCmd[0] == "ptime")
 		{
 			std::cout << ptime.count() << std::endl;
@@ -49,45 +46,9 @@ int main(void)
 		{
 			break;
 		}
-		
 		else // if the command is not built in we need to search for a program and fork execvp it
 		{	
-			int numArgs = tokenCmd.size();
-			char** args = new char*[numArgs];
-			for(int i = 0; i < numArgs; i++)
-			{
-				args[i] = (char*) tokenCmd[i].c_str();	
-			}
-	
-			auto start = std::chrono::system_clock::now();	
-			if(fork())
-			{
-				// parent waits for the child to finish
-				int status;
-				wait(&status);
-				auto end = std::chrono::system_clock::now();
-				std::chrono::duration<double> elapsed_seconds = end - start;
-				ptime += elapsed_seconds;
-			}
-			else
-			{
-				//child, executes the user's input as a command
-				//char** args = new char*[2];
-				//args[0] = (char*) cmd.c_str();
-				//args[1] = (char*)NULL;
-				
-				execvp(args[0], args);
-				//note if the command is successfully found the child will never
-				//execute the following error message
-				//command not found, or similar errors
-//				for(int i = 0; i < numArgs; i++)
-//				{
-//					delete	args[i];	
-//				}
-					std::cerr << args[0] << " did something wrong" << std::endl;
-					exit(1);
-				}
-
+			ptime =	forkExec(tokenCmd, ptime);
 		}	
 	}
 	return 0;
