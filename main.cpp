@@ -6,10 +6,15 @@
 #include <unistd.h>
 #include "func.hpp"
 #include <string>
+#include <chrono>
+#include <ctime>
 
 int main(void)
 {
 	std::vector<std::string> history;
+	auto temp = std::chrono::system_clock::now();	
+	std::chrono::duration<double> ptime;
+	ptime = temp - temp;
 		//forever (until "exit" is entered by the user
 	while(true) 
 	{
@@ -30,7 +35,7 @@ int main(void)
 			
 		if(tokenCmd[0] == "ptime")
 		{
-
+			std::cout << ptime.count() << std::endl;
 		}
 		else if(tokenCmd[0] == "history")
 		{
@@ -54,12 +59,15 @@ int main(void)
 				args[i] = (char*) tokenCmd[i].c_str();	
 			}
 	
-	
+			auto start = std::chrono::system_clock::now();	
 			if(fork())
 			{
 				// parent waits for the child to finish
 				int status;
 				wait(&status);
+				auto end = std::chrono::system_clock::now();
+				std::chrono::duration<double> elapsed_seconds = end - start;
+				ptime += elapsed_seconds;
 			}
 			else
 			{
