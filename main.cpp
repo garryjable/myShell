@@ -26,6 +26,11 @@ int main(void)
 		std::vector<std::string> tokenCmd;
 		history.push_back(cmd);
 		tokenCmd = tokenize(cmd);
+
+		for (int i = 0; i < tokenCmd.size(); i++)
+		{
+			std::cout << tokenCmd[i] << std::endl;
+		}
 		
 			// loads the tokenized vector into an char ** array
 			// likely not the most efficient but whatevs

@@ -75,6 +75,7 @@ std::chrono::duration<double> forkExec(std::vector<std::string> tokenCmd, std::c
 				for(int i = 0; i < numArgs; i++)
 				{
 					args[i] = strdup(tokenCmd[i].c_str());
+					printf("%s\n", args[i]);
 				}
 				//child, executes the user's input as a command
 				execvp(args[0], args);
