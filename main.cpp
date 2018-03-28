@@ -26,18 +26,12 @@ int main(void)
 		std::vector<std::string> tokenCmd;
 		history.push_back(cmd);
 		tokenCmd = tokenize(cmd);
-
-		for (int i = 0; i < tokenCmd.size(); i++)
-		{
-			std::cout << tokenCmd[i] << std::endl;
-		}
-		
 			// loads the tokenized vector into an char ** array
 			// likely not the most efficient but whatevs
 			// we might decide if the input is a builtin command
 		if(tokenCmd[0] == "ptime")
 		{
-			std::cout << ptime.count() << std::endl;
+			std::cout << "Time spend executing child processes: " <<  ptime.count() << " seconds" << std::endl;
 		}
 		else if(tokenCmd[0] == "history")
 		{
@@ -45,17 +39,42 @@ int main(void)
 		}
 		else if(tokenCmd[0] == "^")
 		{
-			printHistory(history, tokenCmd);
 			std::vector<std::string> histCmd;
 			int index = std::stoi(tokenCmd[1]);
-			std::cout << index << std::endl;
 			histCmd = tokenize(history[index]);
-			std::cout << histCmd[0] << std::endl;
 			ptime = forkExec(histCmd, ptime);			
 		}
 		else if (tokenCmd[0] == "exit")
 		{
 			break;
+		}
+		//we need to check if a pipe was in the command
+		else if (check4Pipe(tokenCmd))
+		{
+			//now I am going to get the index of the pipe, INEFFICIENT because I just checked.
+			//but I kinda liked the idea of getting the index after I know it is there.
+			//its not production quality but it's not gonna give me bugs so whatever.
+			int pipeIndex =  getPipeIndex(tokenCmd);
+			//now I am going to split tokenCmd into 2 separate cmds
+			std::vector<std::string> tokenCmdL;		//left of pipe
+			std::vector<std::string> tokenCmdR;		//right of pipe
+			for( int i = 0; i< tokenCmd.size(); i++)
+			{
+				if( i < pipeIndex)
+				{
+					tokenCmdL.push_back(tokenCmd[i]);	
+				}
+				else if( i > pipeIndex)
+				{
+					tokenCmdR.push_back(tokenCmd[i]);	
+				}
+				else
+				{
+					i++;
+				}
+				pipeForkExec(tokenCmdL, tokenCmdR, ptime);
+			}	
+			
 		}
 		else // if the command is not built in we need to search for a program and fork execvp it
 		{	
