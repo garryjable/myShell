@@ -18,7 +18,7 @@ int main(void)
 		//forever (until "exit" is entered by the user
 	while(true) 
 	{
-		std::cout <<"gash cmd-->"; //G-shell i.e. garretts-shell
+		std::cout <<"[cmd]"; //G-shell i.e. garretts-shell
 		std::string cmd;
 
 			//read a line of input from the user
@@ -41,6 +41,12 @@ int main(void)
 		else if(tokenCmd[0] == "^")
 		{
 			printHistory(history, tokenCmd);
+			std::vector<std::string> histCmd;
+			int index = std::stoi(tokenCmd[1]);
+			std::cout << index << std::endl;
+			histCmd = tokenize(history[index]);
+			std::cout << histCmd[0] << std::endl;
+			ptime = forkExec(histCmd, ptime);			
 		}
 		else if (tokenCmd[0] == "exit")
 		{
