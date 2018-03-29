@@ -8,6 +8,7 @@
 #include <string>
 #include <chrono>
 #include <ctime>
+#include <cstring>
 
 int main(void)
 {
@@ -44,6 +45,16 @@ int main(void)
 			histCmd = tokenize(history[index]);
 			ptime = forkExec(histCmd, ptime);			
 		}
+		else if (tokenCmd[0] == "cd")
+		{	
+			//change directories
+			if (tokenCmd.size() > 1)
+			{
+				const char* path = strdup(tokenCmd[1].c_str());
+				chdir(path);
+				delete path;
+			}
+		}
 		else if (tokenCmd[0] == "exit")
 		{
 			break;
@@ -68,12 +79,8 @@ int main(void)
 				{
 					tokenCmdR.push_back(tokenCmd[i]);	
 				}
-				else
-				{
-					i++;
-				}
-				pipeForkExec(tokenCmdL, tokenCmdR, ptime);
 			}	
+			ptime = pipeForkExec(tokenCmdL, tokenCmdR, ptime);
 			
 		}
 		else // if the command is not built in we need to search for a program and fork execvp it

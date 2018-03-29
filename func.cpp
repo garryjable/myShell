@@ -9,7 +9,8 @@
 #include <cstring>
 #include <errno.h>
 #include <error.h>
-
+#include <stdio.h>
+#include <stdlib.h>
 
 std::vector<std::string> tokenize(std::string cmd)
 {
@@ -92,6 +93,7 @@ std::chrono::duration<double> forkExec(std::vector<std::string> tokenCmd, std::c
 }
 std::chrono::duration<double> pipeForkExec(std::vector<std::string> tokenCmdL, std::vector<std::string> tokenCmdR,std::chrono::duration<double> ptime)
 {
+			auto start = std::chrono::system_clock::now();	
 			int p[2];
 			pipe(p);
 			if(fork()==0)
@@ -99,35 +101,49 @@ std::chrono::duration<double> pipeForkExec(std::vector<std::string> tokenCmdL, s
 				// this is the first child
 				// 0) read in the source feor this file and print it to the pipe
 
-				// close(p[READ]);
-//				dup2(p[WRITE],STDOUT_FILENO);
-//
-//				char *cat[] = { (char*)"cat", (char*)"encrypt.cpp", (char*)NULL };
-//				if (execvp(cat[0], cat) < 0)
-//				{
-//					error(1, errno, "execvp(cat) failed");
-//				}
+				close(p[READ]);
+				dup2(p[WRITE],STDOUT_FILENO);
+				int numArgsL = tokenCmdL.size();
+				char** argsL = new char*[numArgsL];
+				for(int i = 0; i < numArgsL; i++)
+				{
+					argsL[i] = strdup(tokenCmdL[i].c_str());
+				}
+				argsL[numArgsL] = NULL; //// execvp needs a null at the back.
+				//child, executes the user's input as a command
+				execvp(argsL[0], argsL);
+				//note if the command is successfully found the child will never
+				//execute the following error message
+				//command not found, or similar errors
+				std::cerr << argsL[0] << " did something wrong" << std::endl;
+				exit(1);
+				delete[] argsL;
 			}
 			
 			if(fork()==0)
 			{
 				// 2nd child
-				// 1) read the pipe and send the text
-				// through the tr program
 
-				// close(p[WRITE]);
-//				dup2(p[READ], STDIN_FILENO);
-//
-//				char *tr[] = { (char*)"tr", (char*)"a-zA-Z()<>{}[]",
-//					(char*)"n-za-mN-ZA-M) (><}{][", (char*)NULL };
-//				if (execvp(tr[0], tr) < 0)
-//					{
-//						error(1, errno, "execvp(tr) failed");
-//					}
-
+				close(p[WRITE]);
+				dup2(p[READ], STDIN_FILENO);
+				int numArgsR = tokenCmdR.size();
+				char** argsR = new char*[numArgsR];
+				for(int i = 0; i < numArgsR; i++)
+				{
+					argsR[i] = strdup(tokenCmdR[i].c_str());
+				}
+				argsR[numArgsR] = NULL; //// execvp needs a null at the back.
+				//child, executes the user's input as a command
+				execvp(argsR[0], argsR);
+				//note if the command is successfully found the child will never
+				//execute the following error message
+				//command not found, or similar errors
+				std::cerr << argsR[0] << " did something wrong" << std::endl;
+				exit(1);
+				delete[] argsR;
 			}
-//			close(p[READ]);
-//			close(p[WRITE]);
+			close(p[READ]);
+			close(p[WRITE]);
 
 			int wstatus;
 			int kids = 2;
@@ -137,7 +153,8 @@ std::chrono::duration<double> pipeForkExec(std::vector<std::string> tokenCmdL, s
 				std::cout << "Child proc " << kiddo << " exited with status " << wstatus << std::endl;
 				kids--;
 			}
-			std::cout << "all done" << std::endl;
+			auto end = std::chrono::system_clock::now();
+			std::chrono::duration<double> elapsed_seconds = end - start;
 			return ptime;
 }
 bool check4Pipe(std::vector<std::string> tokenCmd)
